@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Put, Query } from "@nestjs/common";
 import { UserService } from "./user.service";
 import { User } from "./user.model";
 import { CreateUserDto } from "./user.dto";
@@ -24,12 +24,17 @@ export class UserController{
     return this.userService.findOne(id);
   }
 
+  
+  @Get()
+  fingByQuery(@Query() query: any) {
+    return this.userService.findByQuery(query);
+  }
+
   @Get()
   findAll() {
     return this.userService.findAll();
   }
 
-  
   findAllDeleted() {
     return this.userService.findAllRemovedUser();
   }

@@ -3,6 +3,7 @@ import { InjectModel } from "@nestjs/mongoose";
 import { User, UserSchema } from "./user.model";
 import { Model } from "mongoose";
 import { CreateUserDto } from "./user.dto";
+import * as bcrypt from 'bcrypt';
 
 
 @Injectable()
@@ -58,5 +59,13 @@ export class UserService{
 
   async findAllRemovedUser() {
     return this.userModel.find({is_active: false}).exec();
+  }
+
+  async findByQuery(query: any) {
+    return this.userModel.find(query).exec();
+  } 
+
+  async comparePassword(providedPassword: string, storedPassword: string): Promise<Boolean> {
+    return bcrypt.compare(providedPassword, storedPassword);
   }
 }
