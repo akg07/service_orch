@@ -1,5 +1,6 @@
 import { Injectable, Logger, NestMiddleware } from "@nestjs/common";
 import { ReqResLogService } from "src/modules/req-res-log/req_res_log.service";
+import * as os from 'os';
 
 
 @Injectable()
@@ -8,29 +9,38 @@ export class ReqResLoggerMiddleware implements NestMiddleware{
 
   constructor(private readonly logService: ReqResLogService) {}
 
-
   async use(req: any, res: any, next: (error?: any) => void) {
-    
-    const start = Date.now();
-    const {method, originalUrl, body} = req;
+    try{
+      const start = Date.now();
+      const {method, originalUrl, body} = req;
 
-    const originalSend = res.send;
-    res.send = async (responseBody: any) => {
-
-      const duration = Date.now() - start;
-      const {statusCode} = res;
-
-      this.logger.log(`${method} ${originalUrl} - ${statusCode} [${duration}ms]`);
-      
-      try{
-        await this.logService.log({method, originalUrl, requestBody:body, statusCode, duration, responseBody});
-      }catch(error) {
-        console.log('req-res-log error: ', error);
+      // get system information
+      const systemInformation = {
+        platform: os.platform(),
+        arch: os.arch(),
+        totalMemory: os.totalmem(),
+        freeMemory: os.freemem(),
+        cpus: os.cpus(),
       }
 
-      return originalSend.call(res, responseBody);
+      const originalSend = res.send;
+      res.send = async (responseBody: any) => {
+
+        const duration = Date.now() - start;
+        const {statusCode} = res;
+
+        this.logger.log(`${method} ${originalUrl} - ${statusCode} [${duration}ms]`);
+        await this.logService.log({method, originalUrl, requestBody:body, statusCode, duration, responseBody, systemInformation});
+
+        return originalSend.call(res, responseBody);
+      }
+      next();
     }
-    next();
+    catch(err) {
+      console.error(err);
+      next(err);
+    }
+    
   }
 
 

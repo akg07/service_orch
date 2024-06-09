@@ -7,6 +7,7 @@ export const LogSchema = new mongoose.Schema({
   responseBody: mongoose.Schema.Types.Mixed,
   statusCode: Number,
   duration: Number,
+  systemInformation: mongoose.Schema.Types.Mixed,
   createAt: {type: Date, default: Date.now},
 });
 
@@ -17,5 +18,6 @@ export interface Log extends mongoose.Document {
   responseBody: any;
   statusCode: number;
   duration: number;
+  systemInformation: any;
   createdAt: Date;
 }
