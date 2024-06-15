@@ -46,8 +46,17 @@ export class UserService{
     }
   }
 
-  async findOne(id: string): Promise<User | null>{
-    const user = this.userModel.findOne({_id: id, is_active: true}).exec();
+  async findOne(data: any): Promise<User | null>{
+    let payload = {is_active: true}
+    const { id, email } = data;
+    console.log(data);
+    
+    if(id) { payload['_id'] = id; }
+    else if(email) { payload['email'] = email; }
+
+    console.log(payload);
+    
+    const user = this.userModel.findOne(payload).exec();
     
     if(!user) return null;
     return user;
@@ -67,5 +76,15 @@ export class UserService{
 
   async comparePassword(providedPassword: string, storedPassword: string): Promise<Boolean> {
     return bcrypt.compare(providedPassword, storedPassword);
+  }
+
+  async validate(email: string, pass: string): Promise<Boolean> {
+    try{
+      const user = await this.findByQuery({email});
+      if(user.length == 0) return false;
+
+      // validate password
+      return await this.comparePassword(pass, user[0].password);
+    }catch(err){ console.log(err); }
   }
 }

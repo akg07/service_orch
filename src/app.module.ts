@@ -6,12 +6,14 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { CONSTANT } from './common/utils/constants';
 import { ReqResLoggerMiddleware } from './common/middleware/request-response-logger.middleware';
 import { ReqResLogModule } from './modules/req-res-log/req_res_log.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
     MongooseModule.forRoot(CONSTANT.MONGODB_URI),
     UserModule,
     ReqResLogModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
